@@ -3,189 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FilmCircle | La tua Cerchia</title>
+    <title>FilmCircle Social</title>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    
     <style>
-        /* GRAFICA MODERNA NEON */
-        body { font-family: 'Inter', -apple-system, sans-serif; background: #0f0f0f; color: #fff; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #0f0f0f; color: #fff; margin: 0; text-align: center; }
+        nav { background: rgba(20, 20, 20, 0.9); padding: 15px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; display: flex; justify-content: center; gap: 10px; }
+        nav button { background: #222; border: 1px solid #444; color: #aaa; padding: 10px 20px; border-radius: 50px; cursor: pointer; transition: 0.3s; }
+        nav button.active { background: #E50914; color: white; box-shadow: 0 0 15px rgba(229, 9, 20, 0.4); border: none; }
         
-        nav { background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(10px); padding: 15px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; display: flex; justify-content: center; gap: 10px; }
-        nav button { background: #222; border: 1px solid #444; color: #aaa; padding: 10px 20px; border-radius: 50px; cursor: pointer; transition: 0.3s; font-weight: 600; }
-        nav button:hover { border-color: #E50914; color: #fff; }
-        nav button.active { background: #E50914; color: white; border-color: #E50914; box-shadow: 0 0 15px rgba(229, 9, 20, 0.4); }
-
-        .container { max-width: 600px; margin: 30px auto; padding: 20px; }
-        h1 { color: #E50914; font-size: 2.5rem; letter-spacing: -1px; margin-bottom: 5px; }
-        .subtitle { color: #666; margin-bottom: 30px; }
-
-        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #1a1a1a; color: white; box-sizing: border-box; font-size: 1rem; }
-        input:focus { border-color: #E50914; outline: none; box-shadow: 0 0 10px rgba(229, 9, 20, 0.2); }
-
-        .btn-main { width: 100%; padding: 14px; background: #E50914; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.3s; }
-        .btn-main:hover { background: #b20710; transform: translateY(-2px); }
-
-        /* SEZIONI */
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; }
         .sezione { display: none; }
-        .sezione.attiva { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .sezione.attiva { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* RISULTATO RICERCA */
-        #risultato-box { background: #1a1a1a; padding: 20px; border-radius: 15px; border: 1px solid #333; margin-top: 20px; text-align: left; }
-        .res-flex { display: flex; gap: 20px; }
-        #res-img { width: 120px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #1a1a1a; color: white; box-sizing: border-box; }
+        .btn-main { width: 100%; padding: 14px; background: #E50914; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
 
-        /* POST IN CLASSIFICA */
         .post { position: relative; background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; text-align: left; border: 1px solid #222; }
-        .post img { width: 60px; height: 90px; object-fit: cover; border-radius: 6px; margin-right: 15px; }
-        .voto-tag { background: #E50914; padding: 2px 8px; border-radius: 5px; font-weight: bold; font-size: 0.9rem; }
-        .nick-tag { color: #666; font-size: 0.8rem; margin-bottom: 4px; }
+        .post img { width: 60px; height: 90px; border-radius: 6px; margin-right: 15px; object-fit: cover; }
+        .nick-tag { color: #E50914; font-weight: bold; font-size: 0.9rem; }
+        .segnala { position: absolute; right: 10px; bottom: 10px; background: none; border: none; cursor: pointer; opacity: 0.4; font-size: 0.8rem; color: #fff; }
+        .segnala:hover { opacity: 1; color: #ff4d4d; }
         
-        .btn-elimina { position: absolute; right: 15px; top: 15px; background: none; border: none; color: #444; cursor: pointer; font-size: 1.2rem; }
-        .btn-elimina:hover { color: #E50914; }
+        #risultato-box { background: #222; padding: 15px; border-radius: 10px; margin-top: 15px; display: none; border: 1px dashed #E50914; }
     </style>
 </head>
 <body>
 
     <nav>
-        <button id="nav-home" class="active" onclick="vaiA('home')">🏠 Home</button>
-        <button id="nav-profilo" onclick="vaiA('profilo')">👤 Profilo</button>
+        <button id="nav-home" class="active" onclick="vaiA('home')">🏠 Cerca</button>
+        <button id="nav-community" onclick="vaiA('community')">🌎 Community</button>
+        <button id="nav-profilo" onclick="vaiA('profilo')">👤 Mio Profilo</button>
     </nav>
 
     <div class="container">
-        <h1>FilmCircle</h1>
-        <p class="subtitle">La tua classifica cinematografica</p>
-
         <div id="sez-home" class="sezione attiva">
-            <input type="text" id="inputCerca" placeholder="Cerca un film...">
-            <button class="btn-main" onclick="cercaFilm()">Cerca sul Database</button>
+            <h1>Aggiungi un Film</h1>
+            <input type="text" id="inputCerca" placeholder="Titolo del film...">
+            <button class="btn-main" onclick="cercaFilm()">Cerca</button>
 
-            <div id="risultato-box" style="display: none;">
-                <div class="res-flex">
-                    <img id="res-img" src="">
-                    <div>
-                        <h2 id="res-titolo" style="margin:0"></h2>
-                        <p id="res-anno" style="color:#666; margin:5px 0;"></p>
-                    </div>
-                </div>
-                <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
-                <input type="text" id="my-nick" placeholder="Tuo Nickname (es. @Giulia)">
-                <input type="number" id="my-voto" placeholder="Voto da 1 a 10" min="1" max="10">
-                <textarea id="my-commento" placeholder="Cosa ne pensi?"></textarea>
-                <button class="btn-main" onclick="salvaInClassifica()">Aggiungi alla mia Cerchia</button>
+            <div id="risultato-box">
+                <img id="res-img" src="" style="width:100px; border-radius:5px;">
+                <h3 id="res-titolo"></h3>
+                <input type="text" id="my-nick" placeholder="Tuo Nickname">
+                <input type="number" id="my-voto" placeholder="Voto 1-10" min="1" max="10">
+                <textarea id="my-commento" placeholder="Commento rapido..."></textarea>
+                <button class="btn-main" onclick="pubblicaSuFirebase()">Pubblica Post</button>
             </div>
         </div>
 
+        <div id="sez-community" class="sezione">
+            <h1>Community</h1>
+            <div id="lista-community">Caricamento post...</div>
+        </div>
+
         <div id="sez-profilo" class="sezione">
-            <h2 id="titolo-profilo">Il mio Profilo</h2>
-            <div id="lista-film"></div>
-            <button onclick="resetTotale()" style="background:none; border:none; color:#333; cursor:pointer; margin-top:40px; font-size:0.8rem;">Svuota intera classifica</button>
+            <h1>I Miei Voti</h1>
+            <div id="lista-mio-profilo">Ancora nulla qui.</div>
         </div>
     </div>
 
     <script>
-        // 1. CONFIGURAZIONE
-        const API_KEY = 'dae404190eb94b56618145be7b3ef7c3'; 
-        let archivio = JSON.parse(localStorage.getItem('FilmCircle_Data')) || [];
+        // --- CONFIGURAZIONE FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCDhLj0VHJlkfB1-lc9uvO7Q4iD5WgkXio",
+            authDomain: "filmcircle-e61f8.firebaseapp.com",
+            projectId: "filmcircle-e61f8",
+            storageBucket: "filmcircle-e61f8.firebasestorage.app",
+            messagingSenderId: "718292012298",
+            appId: "1:718292012298:web:4f752d9785a9a7f392fef3",
+            databaseURL: "https://filmcircle-e61f8-default-rtdb.europe-west1.firebasedatabase.app/"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        // 2. NAVIGAZIONE
+        // --- CONFIGURAZIONE TMDB ---
+        const TMDB_KEY = 'dae404190eb94b56618145be7b3ef7c3'; 
+
+        // --- NAVIGAZIONE ---
         function vaiA(id) {
             document.querySelectorAll('.sezione').forEach(s => s.classList.remove('attiva'));
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
             document.getElementById('sez-' + id).classList.add('attiva');
             document.getElementById('nav-' + id).classList.add('active');
-            if(id === 'profilo') aggiornaClassificaGrafica();
             
-            // Se abbiamo già salvato un nick in passato, lo pre-compila
-            const nickSalvato = localStorage.getItem('FilmCircle_Nick');
-            if(nickSalvato && document.getElementById('my-nick')) {
-                document.getElementById('my-nick').value = nickSalvato;
+            if(id === 'community' || id === 'profilo') caricaPost(id);
+            
+            const nickS = localStorage.getItem('FC_Nick');
+            if(nickS && document.getElementById('my-nick')) document.getElementById('my-nick').value = nickS;
+        }
+
+        // --- RICERCA FILM ---
+        async function cercaFilm() {
+            const q = document.getElementById('inputCerca').value;
+            const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${q}&language=it-IT`);
+            const d = await res.json();
+            if(d.results.length > 0) {
+                const f = d.results[0];
+                document.getElementById('risultato-box').style.display = 'block';
+                document.getElementById('res-titolo').innerText = f.title;
+                document.getElementById('res-img').src = "https://image.tmdb.org/t/p/w500" + f.poster_path;
             }
         }
 
-        // 3. CERCA FILM
-        async function cercaFilm() {
-            const query = document.getElementById('inputCerca').value;
-            if(!query) return;
+        // --- PUBBLICAZIONE ---
+        function pubblicaSuFirebase() {
+            const nick = document.getElementById('my-nick').value || "Anonimo";
+            const voto = document.getElementById('my-voto').value;
+            if(!voto) return alert("Metti un voto!");
 
-            const url = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=it-IT`;
-            try {
-                const r = await fetch(url);
-                const d = await r.json();
-                if(d.results.length > 0) {
-                    const f = d.results[0];
-                    document.getElementById('risultato-box').style.display = 'block';
-                    document.getElementById('res-titolo').innerText = f.title;
-                    document.getElementById('res-anno').innerText = f.release_date ? f.release_date.split('-')[0] : "";
-                    document.getElementById('res-img').src = `https://image.tmdb.org/t/p/w500${f.poster_path}`;
-                } else { alert("Film non trovato!"); }
-            } catch(e) { alert("Errore API. Controlla la chiave!"); }
-        }
-
-        // 4. SALVA POST
-        function salvaInClassifica() {
-            const n = document.getElementById('my-nick').value || "User";
-            const v = document.getElementById('my-voto').value;
-            if(!v || v<1 || v>10) return alert("Inserisci un voto valido!");
-
-            const nuovoFilm = {
-                nick: n,
+            const nuovoPost = {
+                nick: nick,
                 titolo: document.getElementById('res-titolo').innerText,
-                voto: Number(v),
+                voto: Number(voto),
                 commento: document.getElementById('my-commento').value,
-                img: document.getElementById('res-img').src
+                img: document.getElementById('res-img').src,
+                segnalazioni: 0,
+                timestamp: Date.now()
             };
 
-            archivio.push(nuovoFilm);
-            archivio.sort((a,b) => b.voto - a.voto);
+            // Salviamo su Firebase
+            db.ref('posts').push(nuovoPost);
+            localStorage.setItem('FC_Nick', nick);
             
-            // Salva dati e nickname
-            localStorage.setItem('FilmCircle_Data', JSON.stringify(archivio));
-            localStorage.setItem('FilmCircle_Nick', n);
-
-            alert("Film aggiunto!");
+            alert("Post inviato alla Community!");
             document.getElementById('risultato-box').style.display = 'none';
-            document.getElementById('inputCerca').value = "";
-            vaiA('profilo');
+            vaiA('community');
         }
 
-        // 5. MOSTRA CLASSIFICA + ELIMINA
-        function aggiornaClassificaGrafica() {
-            const lista = document.getElementById('lista-film');
-            lista.innerHTML = archivio.length === 0 ? "<p style='color:#444'>Nessun film salvato.</p>" : "";
-            
-            archivio.forEach((f, index) => {
-                lista.innerHTML += `
-                    <div class="post">
-                        <button class="btn-elimina" onclick="eliminaSingolo(${index})">&times;</button>
-                        <img src="${f.img}">
-                        <div>
-                            <div class="nick-tag">@${f.nick}</div>
-                            <b style="font-size:1.1rem;">${f.titolo}</b> <span class="voto-tag">${f.voto}</span><br>
-                            <small style="color:#aaa;">"${f.commento}"</small>
-                        </div>
-                    </div>`;
+        // --- CARICAMENTO DATI ---
+        function caricaPost(tipo) {
+            const contenitore = tipo === 'community' ? document.getElementById('lista-community') : document.getElementById('lista-mio-profilo');
+            const mioNick = localStorage.getItem('FC_Nick');
+
+            db.ref('posts').on('value', (snapshot) => {
+                const data = snapshot.val();
+                let html = "";
+                const lista = [];
+
+                for(let id in data) {
+                    // Filtro sicurezza: non mostrare post con più di 3 segnalazioni
+                    if(data[id].segnalazioni < 3) {
+                        lista.push({ ...data[id], idFirebase: id });
+                    }
+                }
+
+                // Ordina per voto più alto
+                lista.sort((a,b) => b.voto - a.voto);
+
+                lista.forEach(p => {
+                    // Se siamo nel profilo, mostra solo i miei. Se in community, mostra tutto.
+                    if(tipo === 'community' || (tipo === 'profilo' && p.nick === mioNick)) {
+                        html += `
+                        <div class="post">
+                            <img src="${p.img}">
+                            <div>
+                                <span class="nick-tag">@${p.nick}</span><br>
+                                <b>${p.titolo}</b> - ⭐ ${p.voto}<br>
+                                <small>"${p.commento}"</small>
+                            </div>
+                            <button class="segnala" onclick="segnalaPost('${p.idFirebase}')">🚩 Segnala</button>
+                        </div>`;
+                    }
+                });
+
+                contenitore.innerHTML = html || "<p>Nessun post trovato.</p>";
             });
-
-            if(archivio.length > 0) document.getElementById('titolo-profilo').innerText = "Profilo di @" + archivio[0].nick;
         }
 
-        function eliminaSingolo(i) {
-            if(confirm("Eliminare questo film?")) {
-                archivio.splice(i, 1);
-                localStorage.setItem('FilmCircle_Data', JSON.stringify(archivio));
-                aggiornaClassificaGrafica();
+        // --- FUNZIONE SEGNALA ---
+        function segnalaPost(id) {
+            if(confirm("Vuoi segnalare questo post come inappropriato?")) {
+                const ref = db.ref('posts/' + id + '/segnalazioni');
+                ref.transaction((correnti) => (correnti || 0) + 1);
+                alert("Grazie. Se riceverà altre segnalazioni verrà rimosso.");
             }
         }
-
-        function resetTotale() {
-            if(confirm("Vuoi cancellare tutto?")) {
-                localStorage.removeItem('FilmCircle_Data');
-                archivio = [];
-                aggiornaClassificaGrafica();
-            }
-        }
-
-        // Carica la classifica all'avvio
-        window.onload = () => { if(archivio.length > 0) aggiornaClassificaGrafica(); };
     </script>
 </body>
 </html>
